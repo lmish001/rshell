@@ -9,11 +9,11 @@ class Parse {
     
     private:
     std::vector<std::string> v;
+    int returnVal;
 
     public:
     Parse(std::vector<std::string> v);
     int createTree();
-    int returnVal;
     int get_returnVal();
     
     

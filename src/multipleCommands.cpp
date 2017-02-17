@@ -7,9 +7,11 @@ And::And(Command *left, Command *right){
     this->right=right;
 }
 
+
 int And::execute(){
     
     int returnVal = left->execute();
+    //checks if the previous (left) command executed correctly
     if(returnVal==1){
       return right->execute();
     }
@@ -19,19 +21,23 @@ int And::execute(){
    
 }
 
+
 void And::remove(){
     this->left = NULL;
     this->right = NULL;
 }
+
 
 Or::Or(Command *left, Command *right){
     this->left=left;
     this->right=right;    
 }
 
+
 int Or::execute(){
     
     int returnVal = left->execute();
+    //checks if the previous (left) command executed incorrectly
     if(returnVal==-1){
       return right->execute();
     }
@@ -40,12 +46,15 @@ int Or::execute(){
     }
 }
 
+
 void Or::remove(){
     this->left = NULL;
     this->right = NULL;
 }
 
+
 Semicolon::Semicolon(Command *left, Command *right){
+    
     this->left=left;
     this->right=right;
 }
@@ -54,14 +63,15 @@ Semicolon::Semicolon(Command *left, Command *right){
 int Semicolon::execute(){
     
     int returnVal = left->execute();
+    //Executes all the commands. If the command was "exit", does not execute any further.
     if(returnVal!=2){
       return right->execute();
     }
     else{
         return returnVal;
     }
-    
 }
+
 
 void Semicolon::remove(){
     this->left = NULL;

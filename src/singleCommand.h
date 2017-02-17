@@ -4,6 +4,7 @@
 #include <vector> 
 
 class singleCommand : public Command {
+    
     protected:
     char **args;
     std::string input;
