@@ -1,0 +1,60 @@
+1)
+Input: echo "hi"
+Output: 
+hi
+
+2) 
+Input: ls -a; echo hello; mkdir test
+Output: 
+./         Josh's Code/           Parse.cpp  main.cpp              singleCommand.h
+../        Makefile               Parse.h    multipleCommands.cpp  testCases.txt
+.c9/       Multiple_Commands.cpp  README.md  multipleCommands.h
+Command.h  Multiple_Commands.h    a.out*     singleCommand.cpp
+hello
+
+/* Also makes folder called test */
+
+3) 
+Input: ls -a || echo hello && mkdir McDonald
+Output:
+./         Josh's Code/           Parse.cpp  main.cpp              singleCommand.h
+../        Makefile               Parse.h    multipleCommands.cpp  testCases.txt
+.c9/       Multiple_Commands.cpp  README.md  multipleCommands.h
+Command.h  Multiple_Commands.h    a.out*     singleCommand.cpp
+
+/* Also makes folder called McDonald */
+
+4) 
+Input: ls -a && echo hello #  mkdir test
+Output:
+./         Josh's Code/           Parse.cpp  main.cpp              singleCommand.h
+../        Makefile               Parse.h    multipleCommands.cpp  test/
+.c9/       Multiple_Commands.cpp  README.md  multipleCommands.h    testCases.txt
+Command.h  Multiple_Commands.h    a.out*     singleCommand.cpp
+hello
+
+5)
+Input: ls echo hi
+Output: 
+ls: cannot access echo: No such file or directory
+ls: cannot access hi: No such file or directory
+
+6) 
+Input: ls echo hi ||     echo this is a sentence
+Output:
+ls: cannot access echo: No such file or directory
+ls: cannot access hi: No such file or directory
+this is a sentence
+
+
+7)
+Input: exit
+Output:
+
+/* Exits program */
+
+8)
+Input: echo "Testing exit" ; exit
+Output:
+
+/* Exits program */
