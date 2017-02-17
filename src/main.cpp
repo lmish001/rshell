@@ -6,10 +6,9 @@
 #include <limits.h>
 #include "stdio.h"
 
-using namespace std;
+// using namespace std;
 
-#include "Multiple_Commands.h"
-#include "Command.h"
+
 #include "Parse.h"
 
 // Removes all the unnessary parts of the host's username
@@ -19,84 +18,84 @@ void fixedName(char* username, char* machinename);
 bool charCompare(const char a, const char b);
 
 // Parse separates userInput and should construct a tree of commands to be executed
-vector<string> separator(const string & userInput, const vector<Multiple_Commands*> & connectors);
+std::vector<std::string> separator(const std::string & userInput, const std::vector<std::string> & connectors);
 
 // Eliminates any possible spacing related issue
-void fixVector(vector<string> &);
+void fixVector(std::vector<std::string> &);
 
 int main(){
     
     bool run = true;
-    string userInput;
+    std::string userInput;
     // For changing text color of our terminal
     char green[] = { 0x1b, '[', '1', ';', '3', '2', 'm', 0 };
     char blue[] = { 0x1b, '[', '1', ';', '3', '4', 'm', 0 };
     char normal[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
     
-    // To get username
-    // To get username
+    // To get username and machine name
     char username[HOST_NAME_MAX];
     char machinename[HOST_NAME_MAX];
     gethostname(username, HOST_NAME_MAX);
     fixedName(username, machinename);
 
     
-    // To get machine
 
     
-    vector<Multiple_Commands*> connectors;
-    connectors.push_back(new COMMENT());
-    connectors.push_back(new SEMICOLON());
-    connectors.push_back(new AND());
-    connectors.push_back(new OR());
-    
-
+    std::vector<std::string> connectors;
+    connectors.push_back("#");
+    connectors.push_back(";");
+    connectors.push_back("&&");
+    connectors.push_back("||");
+    int exit;
+    Parse* p;
 
     while (run){
          
-        cout << blue << username << normal;
-        cout << "@";
-        cout << green << machinename << normal;
-        cout << " $ ";
-        getline(cin, userInput);
+        std::cout << blue << username << normal;
+        std::cout << "@";
+        std::cout << green << machinename << normal;
+        std::cout << " $ ";
+        getline(std::cin, userInput);
          
-         if (userInput.size() != 0){
+        if (userInput.size() != 0){
             // Calls separator function
-            vector<string> separated_V = separator(userInput, connectors);
+            std::vector<std::string> separated_V = separator(userInput, connectors);
             fixVector(separated_V);
             // Checks to see values stored in vector
             // for (unsigned i = 0; i < separated_V.size(); ++i){
             //     cout << i << " " << separated_V.at(i) << endl;
             // }
-            Parse p = Parse(separated_V);
-            p.createTree();
-            if(p.get_returnVal()==2){
-                run = false;
+            p = new Parse(separated_V);
+            exit = p->createTree();
+            
+            if(exit == 2){
+                break;
             }
         }
+        std::cout << exit << std::endl;
+        
     }
     
     return 0;
 }
 
-vector<string> separator (const string& userInput, const vector<Multiple_Commands*> & connectors){
-    vector<string> parsed;
-    string temp;
-    string conn_temp;
+std::vector<std::string> separator (const std::string &userInput, const std::vector<std::string> &connectors){
+    std::vector<std::string> parsed;
+    std::string temp;
+    std::string conn_temp;
     char conn_temp2;
-    const char space = ' ';
 
     for (unsigned i = 0; i < userInput.size(); ++i){
         bool flag = false;
         for (unsigned j = 0; j < connectors.size(); ++j){
             if (!flag){
-                conn_temp = connectors.at(j)->GetParam();
+                conn_temp = connectors.at(j);
                 conn_temp2 = conn_temp.at(0);
                 if (charCompare(userInput.at(i), conn_temp2)){
                     if (conn_temp.size() == 1){
                         if (!temp.empty()){
                             // Prevents a single space from being pushed into its own spot in the vector
-                            if (!(temp.size() == 1 && charCompare(temp.at(0), space))){
+                            if (!(temp.size() == 1 && charCompare(temp.at(0), ' '))){
                                 parsed.push_back(temp);
                             }
                             temp.clear();
@@ -110,7 +109,7 @@ vector<string> separator (const string& userInput, const vector<Multiple_Command
                     else if (i + 1 < userInput.size() && charCompare(userInput.at(i + 1), conn_temp2)){
                         if (!temp.empty()){
                             // Prevents a single space from being pushed into its own spot in the vector
-                            if (!(temp.size() == 1 && charCompare(temp.at(0), space))){
+                            if (!(temp.size() == 1 && charCompare(temp.at(0), ' '))){
                                 parsed.push_back(temp);
                             }
                             temp.clear();
@@ -154,7 +153,7 @@ void fixedName(char* username, char* machinename){
     machinename[i] = '\0';
 }
 
-void fixVector(vector<string> &v){
+void fixVector(std::vector<std::string> &v){
     for (unsigned i = 0; i < v.size(); ++i){
         if (charCompare(v.at(i).at(0), ' ')){
             unsigned j = 0;

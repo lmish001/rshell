@@ -7,11 +7,14 @@ class singleCommand : public Command {
     protected:
     char **args;
     std::string input;
+    pid_t pid, wpid;
+    int status;
     
     public:
     singleCommand(std::string command);
     int execute();
     void remove();
+    
     
 };
 

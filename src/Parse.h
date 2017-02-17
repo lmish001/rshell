@@ -12,7 +12,7 @@ class Parse {
 
     public:
     Parse(std::vector<std::string> v);
-    void createTree();
+    int createTree();
     int returnVal;
     int get_returnVal();
     

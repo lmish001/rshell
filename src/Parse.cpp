@@ -1,11 +1,9 @@
 #include "Parse.h"
-//#include "main.cpp"
 #include "Command.h"
 #include "singleCommand.h"
 #include "multipleCommands.h"
 #include <sstream>
 #include <vector>
-#include <cstdint>
 #include <cstring>
 #include <iostream>
 using namespace std;
@@ -14,19 +12,21 @@ using namespace std;
 
 Parse::Parse(vector<string> v){
     this->v=v;
+    returnVal=0;
 }
 
 
-void Parse::createTree(){
+int Parse::createTree(){
     
     if(this->v.size()==1){
         string input = v.at(0);
         //Create a new singleCommand object
-        Command* node = new singleCommand(input);
+        Command* node = new singleCommand(v.at(0));
         
         //execute the command
         returnVal = node->execute();
         node=NULL;
+        return returnVal;
         
     }
     else{
@@ -77,9 +77,12 @@ void Parse::createTree(){
         }
         
        returnVal = root->execute();
+       
        root->remove();
+       return returnVal;
      
     }
+    
     
     
 }
