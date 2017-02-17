@@ -29,7 +29,7 @@ int singleCommand::execute( ) {
     }
     
     else{
-    
+    cout<<hi;
     vector<char*>argsToChar;
     
     for (unsigned i=0; i<temp.size(); ++i){
