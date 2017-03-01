@@ -9,7 +9,10 @@
 #include <cstring>
 #include <fcntl.h>
 #include <errno.h>
- #include <stdlib.h>
+#include <stdlib.h>
+#include <iterator>
+#include <sys/types.h>
+#include <sys/stat.h>
 using namespace std;
 
 singleCommand::singleCommand(string input){
@@ -17,8 +20,102 @@ singleCommand::singleCommand(string input){
     this->input = input;
 }
 
+int singleCommand::testCommand(vector<string> v){
+    
+    struct stat info;
+    const char * c;
+    
+    if (v.at(1)=="-f") {
+        
+        c = v.at(2).c_str();
+    
+        if( stat(c, &info ) != 0 ) {
+            cout<<"(False)"<<endl;
+            return 1;
+        }
+        
+        else if( info.st_mode & S_IFREG ) {
+            cout<<"(True)"<<endl;
+            return 0;
+        }   
+        
+        else {
+            cout<<"(False)"<<endl;
+            return 1;
+        }
+        
+    }
+    
+    if(v.at(1)=="-d") {
+        
+        c = v.at(2).c_str();
+    
+        if( stat(c, &info ) != 0 ) {
+            cout<<"(False)"<<endl;
+            return 1;
+        }
+        
+        else if( info.st_mode & S_IFDIR ) {
+            cout<<"(True)"<<endl;
+            return 0;
+        }   
+        
+        else {
+            cout<<"(False)"<<endl;
+            return 1;
+        }
+    
+        
+        
+    }
+    
+    else {
+        
+        if(v.at(1) =="-e"){
+        
+        c = v.at(2).c_str();
+        }
+        
+        else {
+            
+        c = v.at(1).c_str();  
+        }
+        
+
+        if( stat(c, &info ) != 0 ) {
+            cout<<"(False)"<<endl;
+            return 1;
+        }
+        
+        else if( info.st_mode & S_IFMT ) {
+            cout<<"(True)"<<endl;
+            return 0;
+        }   
+        
+        else {
+            cout<<"(False)"<<endl;
+            return 1;
+        }
+        
+        
+        
+    }
+
+//    return 0;
+
+}
+
 
 int singleCommand::execute() {
+    
+    std::istringstream buf(input);
+    std::istream_iterator<string> beg(buf), end;
+    vector<string> tokens(beg, end);
+    
+    if(tokens.at(0)=="test"){
+        return testCommand (tokens);
+        
+    }
 
     //to execute the command, the string needs to be changed to a char**
     vector<string>temp;
@@ -50,7 +147,7 @@ int singleCommand::execute() {
      
         if(pid<0){
             perror("Fork failed");
-             return -1;
+             return 1;
           
         }
         
@@ -77,7 +174,7 @@ int singleCommand::execute() {
             //If the parent can read from the pipe, it means the execvp failed, and the function returns -1
             if(read(execpipe[0], &childErrno, sizeof(childErrno)) == sizeof(childErrno))
             {
-                return -1;
+                return 1;
         
             }
             
@@ -86,13 +183,13 @@ int singleCommand::execute() {
                 //If execvp executed correctly, there is nothing to read in the pipe. The function then returns 1
                 this->input.erase (input.begin(), input.end());
                 this->args = NULL;
-                return 1;
+                return 0;
             }
         }    
         
 
     }
-return 1;
+return 0;
 }
 
 

@@ -13,7 +13,7 @@ int And::execute(){
     
     int returnVal = left->execute();
     //Checks if the previous (left) command executed correctly
-    if(returnVal==1){
+    if(returnVal==0){
       return right->execute();
     }
     else {
@@ -40,7 +40,7 @@ int Or::execute(){
     
     int returnVal = left->execute();
     //Checks if the previous (left) command executed incorrectly
-    if(returnVal==-1){
+    if(returnVal==1){
       return right->execute();
     }
     else{

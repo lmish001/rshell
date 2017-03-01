@@ -13,6 +13,7 @@ class singleCommand : public Command {
     
     public:
     singleCommand(std::string command);
+    int testCommand(std::vector<std::string> v);
     int execute();
     void remove();
     
