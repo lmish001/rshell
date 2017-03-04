@@ -78,6 +78,53 @@ echo
 echo "Case $CASENUM Test Complete"
 echo
 
+((CASENUM++));
+echo "Case $CASENUM"
+USERINPUT="test"
+echo "Input: $USERINPUT"
+echo "Output:"
+echo
+bin/rshell <<< $USERINPUT
+echo
+echo "Case $CASENUM Test Complete"
+echo
+
+
+((CASENUM++));
+echo "Case $CASENUM"
+USERINPUT="test -e"
+echo "Input: $USERINPUT"
+echo "Output:"
+echo
+bin/rshell <<< $USERINPUT
+echo
+echo "Case $CASENUM Test Complete"
+echo
+
+
+((CASENUM++));
+echo "Case $CASENUM"
+USERINPUT="test -d"
+echo "Input: $USERINPUT"
+echo "Output:"
+echo
+bin/rshell <<< $USERINPUT
+echo
+echo "Case $CASENUM Test Complete"
+echo
+
+
+((CASENUM++));
+echo "Case $CASENUM"
+USERINPUT="test -f"
+echo "Input: $USERINPUT"
+echo "Output:"
+echo
+bin/rshell <<< $USERINPUT
+echo
+echo "Case $CASENUM Test Complete"
+echo
+
 printf "${RED}Test commands with brackets${REG} \n"
 
 ((CASENUM++));
@@ -124,7 +171,7 @@ echo
 echo "Case $CASENUM Test Complete"
 echo
 
-printf "${RED}Test command with connectors and other commandsTest commands with brackets${REG} \n"
+printf "${RED}Test command with connectors and other commands${REG} \n"
 
 ((CASENUM++));
 echo "Case $CASENUM"
@@ -233,16 +280,6 @@ echo
 
 printf "${RED}Syntax errors${REG} \n"
 
-((CASENUM++));
-echo "Case $CASENUM"
-USERINPUT="test"
-echo "Input: $USERINPUT"
-echo "Output:"
-echo
-bin/rshell <<< $USERINPUT
-echo
-echo "Case $CASENUM Test Complete"
-echo
 
 ((CASENUM++));
 echo "Case $CASENUM"
@@ -288,16 +325,6 @@ echo
 echo "Case $CASENUM Test Complete"
 echo
 
-((CASENUM++));
-echo "Case $CASENUM"
-USERINPUT="test"
-echo "Input: $USERINPUT"
-echo "Output:"
-echo
-bin/rshell <<< $USERINPUT
-echo
-echo "Case $CASENUM Test Complete"
-echo
 
 
 printf "${RED}Precedence integration of test operator${REG} \n"

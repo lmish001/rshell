@@ -56,29 +56,11 @@ int main(){
     system("./name.sh");
     while ( getline(std::cin, userInput)){
         
-
-       // getline(std::cin, userInput);
-        // userInput is only empty when a here string is used in one of the test scripts
-        // std::cout << userInput << std::endl;
-        // break;
-/*        if (cin.get()=='\n'){
-            std::cout<<"null"<<endl;
-        }
-        
-        if (userInput.empty()){
-            std::cout<<"empty"<<endl;
-        
-        }*/
-        
-
         if (userInput.size() != 0){
     
             std::vector<std::string> separated_V = separator(userInput, connectors);
             fixVectorSpacing(separated_V);
-            
-            // for (unsigned int i = 0; i < separated_V.size(); ++i){
-            //     std::cout << i << " " << separated_V.at(i) << std::endl;
-            // }
+
             if (syntaxChecker(separated_V) && properSyntax(separated_V)){
                 std::vector<std::string> v1 = postfixConverter(separated_V);
                 
@@ -143,7 +125,7 @@ std::vector<std::string> separator (const std::string &userInput, const std::vec
                     
                     if (userInput.at(i - 1) != ' ' ){
                         //std::cout << "bash: [: missing `]\'" << std::endl;
-                        temp = "test";
+                        temp = "test -f -d -e syntaxStuff";
                         complexParsed.push_back(temp);
                         temp.clear();
                     }

@@ -13,17 +13,11 @@ int And::execute(){
     
     int returnVal = left->execute();
     //Checks if the previous (left) command executed correctly
-    if(returnVal==0){
+    if(returnVal==0) {
       return right->execute();
     }
-/*    else {
-        
-         if(dynamic_cast<singleCommand*>(right)==NULL){
-             return static_cast<multipleCommands*>(right) -> right -> execute();
-         }*/
-         return returnVal;
-   // }
-   
+
+    return returnVal;
 }
 
 void And::remove(){
@@ -40,18 +34,11 @@ int Or::execute(){
     
     int returnVal = left->execute();
     //Checks if the previous (left) command executed incorrectly
-    if(returnVal==1){
+    if(returnVal==1) {
       return right->execute();
     }
-    /*else{
-        if(dynamic_cast<singleCommand*>(right)==NULL){
-            
-            return static_cast<multipleCommands*>(right) -> right -> execute();
-        }*/
-
-        return returnVal;
-
-   // }
+    
+    return returnVal;
 }
 
 void Or::remove(){
