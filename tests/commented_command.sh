@@ -1,5 +1,5 @@
 #!/bin/bash
-# Use tests/commented_test.sh while in rshell directory to run tests 
+# Use tests/commented_command.sh while in rshell directory to run tests 
 
 echo "Testing ouput with comments:"
 echo
