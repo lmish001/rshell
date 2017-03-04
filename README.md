@@ -45,6 +45,10 @@ To run the tests, input tests/<name_of_test_cases>.sh while in the rshell direct
 - `single_command.sh`
 - `multiple_commands.sh`
 - `exit_command.sh`
+- `test_test.sh`
+- `precedence_test.sh`
+- `commented_command.sh`
+- `exit.sh`
 
 # Known bugs
 - If a command is trying to delete a directory/file that does not exist, rshell treats it as a successfully executed command (it does indicate that the file/directory specified does not exist, but this affects the output with connectors, as the expression is evaluated as true).

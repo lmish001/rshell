@@ -96,3 +96,12 @@ echo
 echo "Case 9 Test Complete"
 echo
 
+echo "Case 10"
+USERINPUT="echo a ("
+echo "Input: $USERINPUT"
+echo "Output:"
+echo
+bin/rshell <<< $USERINPUT
+echo
+echo "Case 9 Test Complete"
+echo
