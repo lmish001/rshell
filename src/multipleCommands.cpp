@@ -16,13 +16,13 @@ int And::execute(){
     if(returnVal==0){
       return right->execute();
     }
-    else {
+/*    else {
         
          if(dynamic_cast<singleCommand*>(right)==NULL){
              return static_cast<multipleCommands*>(right) -> right -> execute();
-         }
+         }*/
          return returnVal;
-    }
+   // }
    
 }
 
@@ -43,15 +43,15 @@ int Or::execute(){
     if(returnVal==1){
       return right->execute();
     }
-    else{
+    /*else{
         if(dynamic_cast<singleCommand*>(right)==NULL){
             
             return static_cast<multipleCommands*>(right) -> right -> execute();
-        }
+        }*/
 
         return returnVal;
 
-    }
+   // }
 }
 
 void Or::remove(){

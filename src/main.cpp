@@ -6,31 +6,42 @@
 #include <limits.h>
 #include "stdio.h"
 #include <stdlib.h>
-#include <utility>
+#include <stack>
+#include <limits>
+#include<boost/tokenizer.hpp>
 
-
+using namespace std;
 
 #include "Parse.h"
 
 // Parse separates userInput and should construct a tree of commands to be executed
-std::vector<std::pair<std::string, int> > separator(const std::string & userInput, const std::vector<std::string> & connectors);
+std::vector<std::string> separator(const std::string & userInput, const std::vector<std::string> & connectors);
 
 // Eliminates any possible spacing related issue
-void fixVectorSpacing(std::vector<std::pair<std::string, int> > &);
+void fixVectorSpacing(std::vector<std::string> &);
 
-// Function that will be used to help handle quotations and parentheses being passed in from user
-bool findMatch(const std::string &userInput, unsigned i, unsigned &j, const char);
+bool syntaxChecker(std::vector<std::string> &);
 
-bool findMatchParentheses(const std::string &userInput, unsigned i, unsigned &j);
+// Converts vector or userinput into postfix notation
+std::vector<std::string> postfixConverter(const std::vector<std::string> &v);
+
+// Function that will be used to help handle quotations being passed in from user
+bool findMatch(const std::string &userInput, unsigned i, unsigned &addAmt, const char);
+
+// Function used to help handle brackets being passed in
+bool findMatchBracket(const std::string &userInput, unsigned i, unsigned &j);
 
 // Function checks to make sure quotations are balanced and parentheses and brackets are balanced. Outputs an error if not.
 bool balancedSyntax(const std::string &userInput);
 
-bool properSyntax(const std::vector<std::pair<std::string, int> > & v, const std::vector<std::string> &connectors);
+// Function that checks to make sure parentheses are correct syntactically. Should be final syntax checker 
+bool properSyntax(const std::vector<std::string> & v);
+
+
 
 int main(){
     
-    bool run = true;
+   // bool run = true;
     std::string userInput;
     
 
@@ -42,48 +53,58 @@ int main(){
     connectors.push_back("||");
     int exit;
     Parse* p;
+    system("./name.sh");
+    while ( getline(std::cin, userInput)){
+        
 
-    while (run){
-         
-        system("./name.sh");
-        getline(std::cin, userInput);
+       // getline(std::cin, userInput);
         // userInput is only empty when a here string is used in one of the test scripts
-        if (userInput.empty()){
-            break;
-        }
-        if (userInput.size() != 0){
-            
-            std::vector<std::pair<std::string, int> > separated_V = separator(userInput, connectors);
-            fixVectorSpacing(separated_V);
-            
-            std::vector<std::string> temp_separated_V;
-            for (unsigned int i = 0; i < separated_V.size(); ++i){
-                temp_separated_V.push_back(separated_V.at(i).first);
-            }
-
-            if ((temp_separated_V.size()%2)!=0){
-                p = new Parse(temp_separated_V);
-                p->createTree();
-                exit = p->run();
-                separated_V.clear();
-                if(exit == 2){
-                      break;
-                }
-            }
-                
+        // std::cout << userInput << std::endl;
+        // break;
+/*        if (cin.get()=='\n'){
+            std::cout<<"null"<<endl;
         }
         
-    }
+        if (userInput.empty()){
+            std::cout<<"empty"<<endl;
+        
+        }*/
+        
+
+        if (userInput.size() != 0){
     
+            std::vector<std::string> separated_V = separator(userInput, connectors);
+            fixVectorSpacing(separated_V);
+            
+            // for (unsigned int i = 0; i < separated_V.size(); ++i){
+            //     std::cout << i << " " << separated_V.at(i) << std::endl;
+            // }
+            if (syntaxChecker(separated_V) && properSyntax(separated_V)){
+                std::vector<std::string> v1 = postfixConverter(separated_V);
+                
+                    if (!v1.empty()){
+                        p = new Parse(v1);
+                        p->createTree();
+                        exit = p->run();
+                        separated_V.clear();
+                        
+                        if (exit == 2){
+                              break;
+                        }
+                    }
+                }
+            }
+            system("./name.sh");
+    }
     return 0;
 }
 
-std::vector<std::pair<std::string, int> > separator (const std::string &userInput, const std::vector<std::string> &connectors){
-    std::vector<std::pair<std::string, int> > complexParsed;
-    std::pair<std::string, int> p;
+std::vector<std::string> separator (const std::string &userInput, const std::vector<std::string> &connectors){
+    std::vector<std::string> complexParsed;
     std::string temp;
     std::string conn_temp;
     char conn_temp2;
+    
     if (!balancedSyntax(userInput)){
         return complexParsed;
     }
@@ -103,66 +124,78 @@ std::vector<std::pair<std::string, int> > separator (const std::string &userInpu
                     }
                     ++i;
                     if (i >= userInput.size()){
-                        p.first = temp;
-                        p.second = 0;
-                        complexParsed.push_back(p);
+                        complexParsed.push_back(temp);
                         return complexParsed;
                     }
                 }
-                else if ((userInput.at(i) == '(') && findMatchParentheses(userInput, i, addAmt)){
+                else if ((userInput.at(i) == '[') && findMatchBracket(userInput, i, addAmt)){
                     if (!temp.empty()){
-                        p.first = temp;
-                        p.second = 0;
-                        complexParsed.push_back(p);
+                        complexParsed.push_back(temp);
                         temp.clear();
                     }
                     ++i;
+                    temp += "test";
                     while (addAmt > 0 && i < userInput.size()){
                         temp += userInput.at(i);
                         i++;
                         addAmt--;
                     }
-                    ++i;
-                    p.first = temp;
-                    p.second = 1;
-                    complexParsed.push_back(p);
-                    temp.clear();
+                    
+                    if (userInput.at(i - 1) != ' ' ){
+                        //std::cout << "bash: [: missing `]\'" << std::endl;
+                        temp = "test";
+                        complexParsed.push_back(temp);
+                        temp.clear();
+                    }
+                    else {
+                        complexParsed.push_back(temp);
+                        temp.clear();
+                    }
+                    i++;
                     if (i >= userInput.size()){
                         return complexParsed;
                     }
                 }
-                if (userInput.at(i) == conn_temp2){
+                if ((userInput.at(i) == '(') || (userInput.at(i) == ')')){
+                    if (!temp.empty()){
+                        complexParsed.push_back(temp);
+                        temp.clear();
+                    }
+                    temp += userInput.at(i);
+                    complexParsed.push_back(temp);
+                    temp.clear();
+                    flag = true;
+                    
+                }
+                else if (userInput.at(i) == conn_temp2){
                     if (conn_temp.size() == 1){
                         if (!temp.empty()){
                             // Prevents a single space from being pushed into its own spot in the vector
                             if (!(temp.size() == 1 && temp.at(0) == ' ')){
-                                p.first = temp;
-                                p.second = 0;
-                                complexParsed.push_back(p);
+                                complexParsed.push_back(temp);
                             }
                             temp.clear();
                         }
                         if (conn_temp2 == '#'){
-                            return complexParsed;
+                            if (i == 0){
+                                return complexParsed;    
+                            }
+                            else if (userInput.at(i - 1) == ' '){
+                                return complexParsed;   
+                            }
                         }
-                        p.first = conn_temp;
-                        p.second = 0;
-                        complexParsed.push_back(p);
+                        complexParsed.push_back(conn_temp);
                         flag = true;
                     }
                     else if (i + 1 < userInput.size() && userInput.at(i + 1) == conn_temp2){
                         if (!temp.empty()){
                             // Prevents a single space from being pushed into its own spot in the vector
                             if (!(temp.size() == 1 && temp.at(0) == ' ')){
-                                p.first = temp;
-                                p.second = 0;
-                                complexParsed.push_back(p);
+                                complexParsed.push_back(temp);
                             }
                             temp.clear();
                         }
-                        p.first = conn_temp;
-                        p.second = 0;
-                        complexParsed.push_back(p);
+                        complexParsed.push_back(conn_temp);
                         flag = true;
                         i++;
                     }
@@ -176,59 +209,57 @@ std::vector<std::pair<std::string, int> > separator (const std::string &userInpu
         
     }
     if (!temp.empty()){
-        p.first = temp;
-        p.second = 0;
-        complexParsed.push_back(p);
+        complexParsed.push_back(temp);
     }
     return complexParsed;
 }
 
-void fixVectorSpacing(std::vector<std::pair<std::string, int> > &v){
+void fixVectorSpacing(std::vector<std::string> &v){
     for (unsigned i = 0; i < v.size(); ++i){
-        if (v.at(i).first.empty()){
+        if (v.at(i).empty()){
             v.erase(v.begin() + i);
         }
-        else if (v.at(i).first.at(0) == ' '){
+        else if (v.at(i).at(0) == ' '){
 
             unsigned j = 0;
             // Counts number of spaces
-            while (j < v.at(i).first.size() && v.at(i).first.at(j) == ' '){
+            while (j < v.at(i).size() && v.at(i).at(j) == ' '){
                 ++j;
             }
             // If a v.at(i) contains solely spaces, v.at(i) is deleted
-            if (v.at(i).first.size() == j){
+            if (v.at(i).size() == j){
                 v.erase(v.begin() + i);
             }
             // Otherwise, the beginning spaces are removed
             else if (j > 0){
-                v.at(i).first = v.at(i).first.substr(j,v.at(i).first.size() - j);
+                v.at(i) = v.at(i).substr(j,v.at(i).size() - j);
             }
         }
     }
 }
 
-bool findMatch(const std::string &userInput, unsigned i, unsigned &j, const char grouper){
+bool findMatch(const std::string &userInput, unsigned i, unsigned &addAmt, const char grouper){
     ++i;
     for(; i < userInput.size(); ++i){
-        ++j;
+        ++addAmt;
         if (userInput.at(i) == grouper){
-            --j;
+            --addAmt;
             return true;
         }
     }
-    j = 0;
+    addAmt = 0;
     return false;
 }
 
-bool findMatchParentheses(const std::string &userInput, unsigned i, unsigned &j){
+bool findMatchBracket(const std::string &userInput, unsigned i, unsigned &j){
     unsigned numInstances = 1;
     ++i;
     for(; i < userInput.size(); ++i){
         ++j;
-        if (userInput.at(i) == '('){
+        if (userInput.at(i) == '['){
             ++numInstances;
         }
-        if (userInput.at(i) == ')'){
+        if (userInput.at(i) == ']'){
             if (numInstances == 1){
                 --j;
                 return true;
@@ -264,70 +295,148 @@ bool balancedSyntax(const std::string &userInput){
         }
     }
     if (parenCounter != 0){
-        std::cout << "error: parentheses are unbalanced" << std::endl;
+        std::cout << "syntax error: parentheses are unbalanced" << std::endl;
         return false;
     }
     else if (!doubleQuoteBalanced){
-        std::cout << "error: double quotes are unbalanced" << std::endl;
+        std::cout << "syntax error: double quotes are unbalanced" << std::endl;
         return false;
     }
     
     return true;
 }
 
-bool properSyntax(const std::vector<std::pair<std::string, int> > & v, const std::vector<std::string> &connectors){
-    std::pair<std::string, int> p;
-    for (unsigned i = 0; i < v.size(); ++i){
-        p = v.at(i);
-        if (i % 2 != 0){
-            // Should have connectors only
-            if (p.second == 0){
-                if (!(p.first == "&&" || p.first == "||" || p.first == ";")){
-                    std::cout << "bash: syntax error near unexpected token: " << p.first << std::endl;
-                    return false;
-                }
+std::vector<std::string> postfixConverter(const std::vector<std::string> &v){
+    std::vector<std::string> postfix;
+    std::vector<std::string> temp;
+    std::stack<std::string> s;
+    std::string c;
+    for(unsigned i = 0; i < v.size();++i){
+        c = v.at(i);
+
+        if (c == "&&" || c == "||" || c == ";" || c == "(" || c == ")"){ //c is an operator
+            if ( c == "("){
+                s.push(c);
             }
-            else if (p.second == 1){
-                std::string reducedString; 
-                for (unsigned j = 0; j < p.first.size(); ++j){
-                    if (p.first.at(j) != '(' || p.first.at(j) != ')'){
-                        reducedString += p.first.at(j);
-                    }
+            else if (c == ")"){
+                while (s.top() != "("){
+                    postfix.push_back(s.top());
+                    s.pop();
                 }
-                if (!(reducedString == "&&" || reducedString == "||" || reducedString == ";")){
-                    std::cout << "bash: syntax error near unexpected token: " << "(" << std::endl;
+                s.pop();
+            }
+            else{
+                while (!s.empty()){
+                    if (s.top() == "("){
+                        break;
+                    }
+                    postfix.push_back(s.top());
+                    s.pop();
+                }
+                s.push(c);
+            }
+        }
+        else{
+            postfix.push_back(c);
+        }
+    }
+    while (!s.empty()){
+        postfix.push_back(s.top());
+        s.pop();
+    }
+    return postfix;
+}
+
+bool syntaxChecker(std::vector<std::string> &v){
+    // Need special checker for ()'s'
+    int counter = 0;
+    int parenCounter = 0;
+    if (v.empty()){
+        return true;
+    }
+    if (v.at(0) == "&&" || v.at(0) == "||" || v.at(0) == ";"){
+        std::cout << "bash: syntax error near unexpected token: " << v.at(0) << std::endl;
+        return false;
+    }
+    if (v.size() == 1 && (v.at(0) == "(" || v.at(0) == ")")){
+        std::cout << "bash: syntax error near unexpected token: " << v.at(0) << std::endl;
+        return false;
+    }
+    
+    for (unsigned i = 0; i < v.size(); ++i){
+        if (v.at(i) == "&&" || v.at(i) == "||" || v.at(i) == ";"){
+            ++counter;
+        }
+        else if (v.at(i) == "(" || v.at(i) == ")"){
+            if (v.at(i) == "("){
+                ++parenCounter;
+            }
+            else {
+                if (parenCounter > 0){
+                    --parenCounter;
+                }
+                else {
+                    std::cout << "bash: syntax error near unexpected token: " << v.at(i) << std::endl;
                     return false;
                 }
-                
             }
         }
         else {
-            std::vector<std::pair<std::string, int> > v = separator(p.first, connectors);
-            fixVectorSpacing(v);
-            if (p.second == 0){
-                // First and last parts cannot have a connector, with the expection being a semi-colon at the end
-                if (v.at(0).first == "&&" || v.at(0).first == "||" || v.at(0).first == ";"){
-                    std::cout << "bash: syntax error near unexpected token: " << v.at(0).first << std::endl;
+            counter = 0;
+        }
+        
+        if (counter >= 2){
+            std::cout << "bash: syntax error near unexpected token: " << v.at(i) << std::endl;
+            return false;
+        }
+        if (i == v.size() - 1){
+            if (v.at(i) == "&&" || v.at(i) == "||"){
+                    std::cout << "bash: syntax error near unexpected token: " << v.at(i) << std::endl;
                     return false;
                 }
-                else if (v.at(v.size() - 1).first == "&&" || v.at(v.size() - 1).first == "||"){
-                    std::cout << "bash: syntax error near unexpected token: " << v.at(v.size() - 1).first << std::endl;
-                    return false;
-                }
-                
-            }
-            else if (p.second == 1){
-                properSyntax(v, connectors);
+            else if (v.at(i) == ";"){
+                v.pop_back();
             }
         }
+    }
+    if (parenCounter != 0){
+        std::cout << "bash: syntax error near unexpected token: ("  << std::endl;
+        return false;
     }
     return true;
 }
 
-
-
-
-
+bool properSyntax(const std::vector<std::string> & v){
+    std::string p;
+    bool flag = false;
+    for (unsigned i = 0; i < v.size(); ++i){
+        p = v.at(i);
+        if (p == "("){
+            if (i > 0){
+                if (v.at(i - 1) != "(" && !(v.at(i - 1) == "&&" || v.at(i - 1) == "||" || v.at(i - 1) == ";")){
+                    std::cout << "bash: syntax error near unexpected token: " << v.at(i - 1) << std::endl;
+                    return false;
+                } 
+            }
+            flag = true;
+        }
+        else if (p == ")"){
+            if (v.at(i - 1) == "&&" || v.at(i - 1) == "||" || v.at(i - 1) == ";" || v.at(i - 1) == "("){
+                std::cout << "bash: syntax error near unexpected token: " << v.at(i - 1) << std::endl;
+                return false;
+            }
+            flag = false;
+        }
+        else if (flag){
+            if (p == "&&" || p == "||" || p == ";"){
+                std::cout << "bash: syntax error near unexpected token: " << p << std::endl;
+                return false;
+            }
+            flag = false;
+        }
+    }
+    return true;
+}
 
 
 
