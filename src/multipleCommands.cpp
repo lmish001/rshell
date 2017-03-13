@@ -69,3 +69,16 @@ void Semicolon::remove(){
     this->left = NULL;
     this->right = NULL;
 }
+
+Redir1::Redir (Command *left, Command *right){
+    this->left=left;
+    this->right=right;
+}
+
+int Redir1::execute(){
+    left->setRedirFlag(1);
+    left->setOutput(right->getInput());
+    int returnVal = left ->execute();
+    left ->setRedirFlag(0);
+    return returnVal;
+}

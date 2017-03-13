@@ -35,5 +35,12 @@ class Semicolon : public multipleCommands {
     void remove();
 };
 
+class Redir1 : public multipleCommands {
+    public:
+    Redir1(Command *left, Command *right);
+    int execute ();
+    void remove();
+};
+
 
 #endif
