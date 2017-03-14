@@ -17,6 +17,7 @@ using namespace std;
 
 singleCommand::singleCommand(string input){
     this->input = input;
+    redirFlag=0;
 }
 
 int singleCommand::testCommand(vector<string> v){
@@ -127,6 +128,7 @@ int singleCommand::testCommand(vector<string> v){
 
 
 int singleCommand::execute() {
+if(redirFlag == 0){ 
 
    std::istringstream buf(input);
    std::istream_iterator<string> beg(buf), end;
@@ -214,10 +216,27 @@ int singleCommand::execute() {
     }
     
 return 0;
+}
+
+if(redirFlag==1){
+  
+}
 
 }
 
 
 void singleCommand::remove(){
     //does nothing
+}
+
+void singleCommand::setRedirFlag (int f){
+  redirFlag = f;
+}
+
+void singleCommand::setOutput(string output){
+  this->output = output;
+}
+
+string singleCommand::getInput(){
+  return input;
 }
