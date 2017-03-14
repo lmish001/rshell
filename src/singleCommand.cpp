@@ -128,7 +128,7 @@ int singleCommand::testCommand(vector<string> v){
 
 
 int singleCommand::execute() {
-if(redirFlag == 0){ 
+
 
    std::istringstream buf(input);
    std::istream_iterator<string> beg(buf), end;
@@ -178,6 +178,15 @@ if(redirFlag == 0){
         
         if(pid==0) { //child process
         
+          if(redirFlag==1){
+            
+            file = output;
+            int fd = open(file, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+            dup2(fd, 1);   // make stdout go to file
+            dup2(fd, 2);   
+            close(fd);
+          }
+        
           close(execpipe[0]);
           execvp(args[0], args);
           //If execvp fails, it returns and the child writes to one end of the pipe.
@@ -218,11 +227,8 @@ if(redirFlag == 0){
 return 0;
 }
 
-if(redirFlag==1){
-  
-}
 
-}
+
 
 
 void singleCommand::remove(){

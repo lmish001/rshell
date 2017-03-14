@@ -76,9 +76,15 @@ Redir1::Redir (Command *left, Command *right){
 }
 
 int Redir1::execute(){
-    left->setRedirFlag(1);
-    left->setOutput(right->getInput());
+    if(dynamic_cast<singleCommand*>left==singleCommand){
+    
+    static_cast<singleCommand>left->setRedirFlag(1);
+    left->setOutput(static_cast<singleCommand>right->getInput());
     int returnVal = left ->execute();
     left ->setRedirFlag(0);
     return returnVal;
+    }
+    else{
+     left->execute();
+    }
 }
