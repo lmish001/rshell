@@ -26,6 +26,15 @@ Output: `a  b  d `
 Input with parentheses: `(echo a && echo b) || (echo c && echo d)` 
 Output: `a  b`
 
+# Output Redirection
+`>` and `>>` is used for output redirection. `>` will overwrite an existing file, or create a new one if it doesn't exist. `>>` will append to an existing file or create a new one if it doesn't exist.
+
+# Input Redirection
+Using `<`, commands can get input from the specified file.
+
+# Piping
+The output of one command can be used as input for the next one using piping. For example:
+`ls | sort | grep a`
 
 
 # Repository structure
@@ -49,9 +58,15 @@ To run the tests, input tests/<name_of_test_cases>.sh while in the rshell direct
 - `precedence_test.sh`
 - `commented_command.sh`
 - `exit.sh`
+- `input_redir.sh`
+- `io_redir.sh`
+- `io_syntax.sh`
+- `output_redir.sh`
+- `pipe.sh`
 
 # Known bugs
-- If a command is trying to delete a directory/file that does not exist, rshell treats it as a successfully executed command (it does indicate that the file/directory specified does not exist, but this affects the output with connectors, as the expression is evaluated as true).
+- Piping has not been combined to work with input/output redirection 
 
 #Fixed Bugs
 - The shell doesn't exit after presing 'Enter
+- If a command is trying to delete a directory/file that does not exist, rshell no longer treats it as a successfully executed command.
