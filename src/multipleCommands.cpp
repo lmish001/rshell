@@ -160,7 +160,6 @@ int multipleCommands::containsElem(std::string elem){
 
 int multipleCommands::getInFiledes(){
     unsigned i;
-    std::string::size_type sz;
     for (i=0; i<multipleCommands::redir_v.size(); i++){
         if(redir_v.at(i)=="in"){
              int value = boost::lexical_cast<int>(multipleCommands::redir_v.at(i+1));
