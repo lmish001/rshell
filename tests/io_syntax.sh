@@ -1,8 +1,6 @@
 #!/bin/bash
-# Use tests/commented_test.sh while in rshell directory to run tests 
+# Use tests/io_syntax.sh while in rshell directory to run tests 
 
-echo "Testing ouput for commented commands:"
-echo
 
 # The last prompt "username@machinename$" is just a text prompt. rshell will break after it is printed.
 # No command will be executed between the last prompt to "Case [#] Test Complete"
@@ -11,9 +9,14 @@ CASENUM=0
 RED='\033[0;91m'
 REG='\033[0m'
 
+printf "${RED}Testing ouput for sytax errors:${REG} \n"
+echo
+
+printf "${RED}Input Redirection:${REG} \n"
+
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="#Do not ouput this # echo \"See what happens\""
+USERINPUT="<"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -24,7 +27,7 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="echo hello && echo hi there # mkdir case4_mult_test"
+USERINPUT="< file_list.text"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -35,7 +38,7 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="echo this; # echo is && echo a || echo test"
+USERINPUT="&& < file_list.text"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -46,7 +49,20 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="#echo a; echo b # echo c; echo d"
+USERINPUT="echo a && < file_list.text"
+echo "Input: $USERINPUT"
+echo "Output:"
+echo
+bin/rshell <<< $USERINPUT
+echo
+echo "Case $CASENUM Test Complete"
+echo
+
+printf "${RED}Output Redirection:${REG} \n"
+
+((++CASENUM))
+echo "Case $CASENUM"
+USERINPUT=">"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -57,7 +73,7 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="echo hello ; ls #do not print"
+USERINPUT="> NE_OutputFile2"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -68,7 +84,7 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="echo \"hello#comment#\""
+USERINPUT=">>"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -79,7 +95,7 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="#"
+USERINPUT="echo a >> NE_OutputFile2 >>"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -90,7 +106,20 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="mkdir case7_commented_test && rm -rf case7_commented_test && # echo \" what happens\""
+USERINPUT="command1 | command2 || | command 3 "
+echo "Input: $USERINPUT"
+echo "Output:"
+echo
+bin/rshell <<< $USERINPUT
+echo
+echo "Case $CASENUM Test Complete"
+echo
+
+printf "${RED}Input and Output Redirection${REG} \n"
+
+((++CASENUM))
+echo "Case $CASENUM"
+USERINPUT="command1 >> command2 << command3 | command4"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -101,7 +130,20 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="rm -rf case8_commented_test ; ls  || # echo \" what happens\""
+USERINPUT="echo a | echo b > > echo c < command4"
+echo "Input: $USERINPUT"
+echo "Output:"
+echo
+bin/rshell <<< $USERINPUT
+echo
+echo "Case $CASENUM Test Complete"
+echo
+
+printf "${RED}Parentheses and Quotations${REG} \n"
+
+((++CASENUM))
+echo "Case $CASENUM"
+USERINPUT="(command1 >> command2 <<) command3 | command4"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -112,7 +154,7 @@ echo
 
 ((++CASENUM))
 echo "Case $CASENUM"
-USERINPUT="echo a# && ls || echo b # echo c"
+USERINPUT="echo a \"| echo b >\" > >> command3 < command4"
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
@@ -121,13 +163,5 @@ echo
 echo "Case $CASENUM Test Complete"
 echo
 
-# ((++CASENUM))
-# echo "Case $CASENUM"
-# USERINPUT="echo a# && ls ||# echo c"
-# echo "Input: $USERINPUT"
-# echo "Output:"
-# echo
-# bin/rshell <<< $USERINPUT
-# echo
-# echo "Case $CASENUM Test Complete"
-# echo
+printf "${RED}Done!${REG} \n"
+

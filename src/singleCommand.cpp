@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <cstring>
 #include <fcntl.h>
+#include <fstream>
 #include <errno.h>
 #include <stdlib.h>
 #include <iterator>
@@ -17,17 +18,36 @@ using namespace std;
 
 singleCommand::singleCommand(string input){
     this->input = input;
-    redirFlag=0;
+    inFiledes = -1;
+    outFiledes  = -1;
 }
 
-int singleCommand::testCommand(vector<string> v){
- struct stat info;
- const char * c;
+int singleCommand::vectorize(){
+  return 0; // Done
+}
 
- if(v.size()==1) {
-   cout<<"(False)"<<endl;
-        return 1;
- }
+void singleCommand::setInFiledes(int filedes){
+  this->inFiledes = filedes;
+}
+void singleCommand::setOutFiledes(int filedes){
+  this->outFiledes = filedes;
+}
+
+string singleCommand::getInput(){
+  return this->input;
+}
+
+
+//executes the test command
+//change to bool
+int singleCommand::testCommand(vector<string> v){
+struct stat info;
+const char * c;
+
+if(v.size()==1) {
+  cout<<"(False)"<<endl;
+  return 1;
+}
  
   if(v.size()>3) {
    cout<<"bash: syntax error with test"<<endl;
@@ -58,9 +78,7 @@ int singleCommand::testCommand(vector<string> v){
           cout<<"(False)"<<endl;
           return 1;
         }
-            
     }
-        
  }
     
  if(v.at(1)=="-d") {
@@ -87,10 +105,8 @@ int singleCommand::testCommand(vector<string> v){
           cout<<"(False)"<<endl;
           return 1;
         }
-    
     } 
-        
- }
+  }
     
  else {
         
@@ -127,19 +143,24 @@ int singleCommand::testCommand(vector<string> v){
 }
 
 
-int singleCommand::execute() {
 
+int singleCommand::execute() {
 
    std::istringstream buf(input);
    std::istream_iterator<string> beg(buf), end;
    vector<string> tokens(beg, end);
     
+    //checks if the command is a test command
     if(tokens.at(0)=="test"){
         return testCommand (tokens);
         
     }
-
-
+    
+    //checks if the command is an exit command
+    if(tokens.at(0)=="exit"){
+        return 2;
+        
+    }
 
     //to execute the command, the string needs to be changed to a char**
     vector<string>temp;
@@ -147,102 +168,178 @@ int singleCommand::execute() {
     string buff;
     stringstream ss(input);
     while(ss >> buff) temp.push_back (buff);
-        
-    if (temp.at(0)=="exit"){
-        //checks if the command is "exit"
-        return 2;
-    }
 
-    else{
+    for (unsigned i=0; i<temp.size(); ++i) {
+      std::string::size_type size = (temp.at(i)).size();
+      char *buffer = new char[size + 1];
+      strcpy(buffer, temp.at(i).c_str());
+      argsToChar.push_back(buffer);    
+    }
+        
+    argsToChar.push_back(NULL); 
+    args = &argsToChar[0];
     
-        for (unsigned i=0; i<temp.size(); ++i) {
-            std::string::size_type size = (temp.at(i)).size();
-            char *buffer = new char[size + 1];
-            strcpy(buffer, temp.at(i).c_str());
-            argsToChar.push_back(buffer);    
-        }
-        
-        argsToChar.push_back(NULL); 
-        args = &argsToChar[0];
-        
-        //The pipe is used to see if execvp failed
-        int execpipe[2];
-        pipe(execpipe);
-        fcntl(execpipe[1], F_SETFD, fcntl(execpipe[1], F_GETFD) | FD_CLOEXEC);
-        pid = fork();
+    int execpipe[2];
+    pipe(execpipe);
+    fcntl(execpipe[1], F_SETFD, fcntl(execpipe[1], F_GETFD) | FD_CLOEXEC);
+    pid = fork();
      
-        if(pid<0) {
-            perror("Fork failed");
-            return 1;
+    if(pid<0) {
+      perror("Fork failed");
+      return 1;
+    }
+        
+    if(pid==0) { //child process
+      close(execpipe[0]);
+      if(inFiledes!=-1){
+        if (dup2(inFiledes, 0) == -1){
+          perror("dup2 error1");
         }
+        close(inFiledes); 
+      }
         
-        if(pid==0) { //child process
-        
-          if(redirFlag==1){
-            
-            file = output;
-            int fd = open(file, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-            dup2(fd, 1);   // make stdout go to file
-            dup2(fd, 2);   
-            close(fd);
-          }
-        
-          close(execpipe[0]);
-          execvp(args[0], args);
-          //If execvp fails, it returns and the child writes to one end of the pipe.
-          perror("Error");
-          write(execpipe[1], &errno, sizeof(errno));
-          exit(0);
+      if(outFiledes!=-1){
+        if (dup2(outFiledes, 1) == -1){
+          perror("dup2 error2");
         }
+        close(outFiledes);
+      }
         
-        if(pid>0) {
+      execvp(args[0], args);
+        
+      //If execvp fails, it returns and the child writes to one end of the pipe.
+      perror("Error");
+      write(execpipe[1], &errno, sizeof(errno));
+      exit(EXIT_FAILURE);
+    }
+        
+    if(pid>0) {
+      
+      //The parent waits fot the child process
+   //  if(waitpid(pid, &status, WIFEXITED(&status))!=-1){
+      if(wait(&status)==-1){
+        perror("Wait error");
+      }
+
+    close(execpipe[1]);
+    int childErrno;
+   
+    //If the parent can read from the pipe, it means the execvp failed, and the function returns -1
+      if(read(execpipe[0], &childErrno, sizeof(childErrno)) == sizeof(childErrno)) {
+        this->input.erase (input.begin(), input.end());
+        this->args = NULL;
+        return 1;
+      }
             
-            //The parent waits fot the child process
-            if(wait(&status)==-1){
-                perror("Wait error");
-            }
-            
-            close(execpipe[1]);
-            int childErrno;
-            //If the parent can read from the pipe, it means the execvp failed, and the function returns -1
-            if(read(execpipe[0], &childErrno, sizeof(childErrno)) == sizeof(childErrno))
+      else {
+        wait(&status);
+        if(WIFEXITED(status))
+        {
+            if(WEXITSTATUS(status) == 0)
             {
-                this->input.erase (input.begin(), input.end());
-                this->args = NULL;
-                return 1;
-            }
-            
-            else
-            {
-                //If execvp executed correctly, there is nothing to read in the pipe. The function then returns 1
-                this->input.erase (input.begin(), input.end());
-                this->args = NULL;
+                // Program succeeded
                 return 0;
             }
-        }    
-        
+            else
+            {
+                // Program failed but exited normally
+                return 1;
+            }
+        }
 
-    }
-    
-return 0;
+      return 0;
+      }
+  }
+  return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+int singleCommand::saveBuffer(int & filedes){
+  
+    std::istringstream buf(input);
+    std::istream_iterator<string> beg(buf), end;
+    vector<string> tokens(beg, end);
+      
+    //checks if the command is a test command
+    if(tokens.at(0)=="test"){
+        return testCommand (tokens);
+        
+    }
+    
+    //checks if the command is an exit command
+    if(tokens.at(0)=="exit"){
+        return 2;
+        
+    }
+    
+    //to execute the command, the string needs to be changed to a char**
+    vector<string>temp;
+    vector<char*>argsToChar;
+    string buff;
+    stringstream ss(input);
+    while(ss >> buff) temp.push_back (buff);
 
+    for (unsigned i=0; i<temp.size(); ++i) {
+      std::string::size_type size = (temp.at(i)).size();
+      char *buffer = new char[size + 1];
+      strcpy(buffer, temp.at(i).c_str());
+      argsToChar.push_back(buffer);    
+    }
+        
+    argsToChar.push_back(NULL); 
+    args = &argsToChar[0];
+    
+    //The pipe is used to see if execvp failed
+    int execpipe[2];
+    pipe(execpipe);
+    fcntl(execpipe[1], F_SETFD, fcntl(execpipe[1], F_GETFD) | FD_CLOEXEC);
+    pid = fork();
+     
+    if(pid<0) {
+      perror("Fork failed");
+      return 1;
+    }
+        
+    if(pid==0) { //child process
+      close(execpipe[0]);
+        fclose(stdout);
+        dup2( filedes, STDOUT_FILENO);
+        close(filedes);
+        execvp(args[0], args);
+      
+      //If execvp fails, it returns and the child writes to one end of the pipe.
+      perror("Error");
+      write(execpipe[1], &errno, sizeof(errno));
+      exit(EXIT_FAILURE);
+    }
+        
+    if(pid>0) {
+      
+      //The parent waits fot the child process
+      //  if(waitpid(pid, &status, WIFEXITED(&status))!=-1){
+      if(wait(&status)==-1){
+        perror("Wait error");
+      }
 
-
+    close(execpipe[1]);
+    int childErrno;
+   
+    //If the parent can read from the pipe, it means the execvp failed, and the function returns -1
+      if(read(execpipe[0], &childErrno, sizeof(childErrno)) == sizeof(childErrno)) {
+        this->input.erase (input.begin(), input.end());
+        this->args = NULL;
+        return 1;
+      }
+            
+      else {
+    
+      return 0;
+      
+      }
+  }
+  return 0;
+}
 
 void singleCommand::remove(){
     //does nothing
-}
-
-void singleCommand::setRedirFlag (int f){
-  redirFlag = f;
-}
-
-void singleCommand::setOutput(string output){
-  this->output = output;
-}
-
-string singleCommand::getInput(){
-  return input;
 }

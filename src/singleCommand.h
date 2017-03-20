@@ -10,19 +10,22 @@ class singleCommand : public Command {
     std::string input;
     pid_t pid, wpid;
     int status;
-    int redirFlag;
-    std::string output;
+    int outFiledes;
+    int inFiledes;
     
     public:
     singleCommand(std::string command);
     int testCommand(std::vector<std::string> v);
     int execute();
     void remove();
-    void setRedirFlag(int f);
-    void setOutput(std::string output);
+    
+    void setInFiledes (int filedes);
+    void setOutFiledes (int filedes);
+    
     std::string getInput();
-    
-    
+    int saveBuffer(int &);
+
+    int vectorize();
 };
 
 

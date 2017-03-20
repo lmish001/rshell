@@ -138,7 +138,7 @@ echo
 
 ((CASENUM++));
 echo "Case $CASENUM"
-USERINPUT="test -d src && ([ -d src ] || ls )|| pwd && exit && echo "test failed""
+USERINPUT="test -d src && ([ -d src ] || ls )|| pwd && exit && echo \"test failed\""
 echo "Input: $USERINPUT"
 echo "Output:"
 echo
