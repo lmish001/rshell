@@ -4,6 +4,7 @@
 #include <typeinfo>
 #include <vector>
 #include <string>
+#include <string.h>
 #include <iostream>
 #include <sys/types.h>
 #include <sys/stat.h>

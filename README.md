@@ -44,7 +44,7 @@ To run the program, input the following commands:
 ```
 $ git clone https://github.com/lmish001/rshell.git
 $ cd rshell
-$ git checkout hw2
+$ git checkout hw4
 $ make
 $ bin/rshell
 ```
