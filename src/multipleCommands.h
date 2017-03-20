@@ -22,14 +22,11 @@ class multipleCommands : public Command {
     
     protected:
     static std::vector<std::string> redir_v;
-    static std::vector<std::string> pipe_v;
     static std::vector<std::string> vector_pipe;
     
     int containsElem(std::string elem);
     int getInFiledes();
     int getOutFiledes();
-    void printPipe();
-    void printVector();
     int vectorize();
 
     virtual int saveBuffer(int &pipeBuffer) = 0;

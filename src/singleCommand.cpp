@@ -14,6 +14,7 @@
 #include <iterator>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <memory>
 using namespace std;
 
 singleCommand::singleCommand(string input){

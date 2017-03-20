@@ -17,31 +17,8 @@
 using namespace std;
 
 vector <string> multipleCommands::redir_v;
-vector <string> multipleCommands::pipe_v;
 vector <string> multipleCommands::vector_pipe;
 
-
-void multipleCommands::printPipe(){
-    if(multipleCommands::pipe_v.empty()){
-        cout<<"Empty pipe vector"<<endl;
-        return;
-    }
-    for (unsigned i=0; i<multipleCommands::pipe_v.size(); i++) {
-        cout<<multipleCommands::pipe_v.at(i)<<endl;
-    }
-}
-
-void multipleCommands::printVector(){
-    cout << "Printing printVector" << endl;
-    if(multipleCommands::vector_pipe.empty()){
-        cout << "Empty pipe vector" << endl;
-        return;
-    }
-    for (unsigned i = 0; i < multipleCommands::vector_pipe.size(); i++) {
-        cout << i << " " << multipleCommands::vector_pipe.at(i) << endl;
-    }
-    cout << " ------------- " << endl;
-}
 
 int multipleCommands::vectorize(){
     singleCommand* temp = dynamic_cast<singleCommand*>(left);
