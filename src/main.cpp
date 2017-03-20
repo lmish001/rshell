@@ -81,6 +81,7 @@ int main(){
                         exit = p->run();
                         separated_V.clear();
                         std::cout << flush;
+                        system("rm -rf pipeCreator.cpp");
                         if (exit == 2){
                               break;
                         }
@@ -89,6 +90,7 @@ int main(){
         }
             system("./name.sh");
     }
+    
     return 0;
 }
 
