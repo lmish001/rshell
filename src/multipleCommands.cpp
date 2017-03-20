@@ -43,6 +43,25 @@ void multipleCommands::printVector(){
     cout << " ------------- " << endl;
 }
 
+int multipleCommands::vectorize(){
+    singleCommand* temp = dynamic_cast<singleCommand*>(left);
+    if(temp == 0) { // The left child is another connector
+        Pipe* check = dynamic_cast<Pipe*>(left);
+        if (check == 0){ // Piping unable to handle complex input at this time
+            return 1;
+        }
+        left->vectorize();
+        multipleCommands::vector_pipe.push_back(static_cast<singleCommand*>(right)->getInput());
+        return 0;
+    }
+    else{ // The left child is a singleCommand
+        multipleCommands::vector_pipe.push_back(static_cast<singleCommand*>(left)->getInput());
+        multipleCommands::vector_pipe.push_back(static_cast<singleCommand*>(right)->getInput());
+        return 0;
+    }
+}
+
+
 void multipleCommands::fileStarter(std::ofstream & file){
     file << "#include <iostream> \n";
     file << "#include <unistd.h> \n";
@@ -160,20 +179,6 @@ int multipleCommands::getOutFiledes(){
         }
     }
     return 0;
-}
-
-int multipleCommands::vectorize(){
-    singleCommand* temp = dynamic_cast<singleCommand*>(left);
-    if(temp == 0) { // The left child is another connector
-        left->vectorize();
-        multipleCommands::vector_pipe.push_back(static_cast<singleCommand*>(right)->getInput());
-        return 0;
-    }
-    else{ // The left child is a singleCommand
-        multipleCommands::vector_pipe.push_back(static_cast<singleCommand*>(left)->getInput());
-        multipleCommands::vector_pipe.push_back(static_cast<singleCommand*>(right)->getInput());
-        return 0;
-    }
 }
 
 And::And(Command *left, Command *right){
@@ -520,8 +525,10 @@ void Pipe::remove(){
 
 int Pipe::execute(){
     multipleCommands::vector_pipe.clear();
-    this->vectorize(); 
-    //this->printVector();
+    int exit = this->vectorize();
+    if (exit != 0){
+        return 1;
+    }
     ofstream myfile;
     myfile.open("pipeCreator.cpp");
     

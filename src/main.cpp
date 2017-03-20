@@ -385,7 +385,7 @@ bool syntaxChecker(std::vector<std::string> &v){
         if (v.at(i) == "&&" || v.at(i) == "||" || v.at(i) == ";" || v.at(i) == ">>" || v.at(i) == ">" || v.at(i) == "<" || v.at(i) == "|"){
             ++counter;
             // Certain connectors cannot be followed by anything in parentheses
-            if(v.at(i) == ">>" || v.at(i) == ">" || v.at(i) == "<"){
+            if(v.at(i) == ">>" || v.at(i) == ">" || v.at(i) == "<" || v.at(i) == "|"){
                 io_flag = true;
             }
         }
